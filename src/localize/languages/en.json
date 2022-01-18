@@ -1,0 +1,55 @@
+{
+  "common": {
+    "description": "Simple QR code card.",
+    "invalid_configuration": "Invalid configuration",
+    "loading": "Loading..."
+  },
+  "editor": {
+    "label": {
+      "source": "Source type (required)",
+      "text": "Text (required)",
+      "entity": "Entity (required)",
+      "auth_type": "Authentication type (required)",
+      "ssid": "SSID (required)",
+      "password": "Password (required)",
+      "is_hidden": "Hidden (optional)"
+    },
+    "options": {
+      "source": {
+        "text": "Text",
+        "wifi": "WiFi",
+        "entity": "Entity"
+      },
+      "auth_type": {
+        "WEP": "WEP",
+        "WPA": "WPA",
+        "nopass": "None"
+      }
+    }
+  },
+  "validation": {
+    "source": {
+      "missing": "Missing property: source",
+      "invalid": "Invalid source type"
+    },
+    "text": {
+      "missing": "Missing property: text"
+    },
+    "auth_type": {
+      "missing": "Missing property: auth_type",
+      "invalid": "Invalid authentication type"
+    },
+    "ssid": {
+      "missing": "Missing property: ssid"
+    },
+    "password": {
+      "missing": "Missing property: password"
+    },
+    "entity": {
+      "missing": "Missing property: entity"
+    }
+  },
+  "generation": {
+    "error": "An error occurred while generating QR-Code"
+  }
+}
