@@ -11,7 +11,11 @@
 This card provides a possibility to generate QRCode in Home Assistant interface.
 
 ## Installation
-### TODO: add installation instructions
+- [Add custom <code>Lovelace</code> repository to HACS](https://hacs.xyz/docs/faq/custom_repositories)
+- Go to "Frontend" section
+- Click button with "+" icon
+- Search for "QRCode generator card"
+- Install repository in HACS
 
 ## Configuration
 
