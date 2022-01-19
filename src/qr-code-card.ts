@@ -39,7 +39,7 @@ export class QRCodeCard extends LitElement {
         return {
             type: "custom:" + CARD_CUSTOM_ELEMENT_NAME,
             source: SourceType.TEXT,
-            text: localize("common.description")
+            text: "QRCode example text"
         };
     }
 

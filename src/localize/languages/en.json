@@ -1,6 +1,6 @@
 {
   "common": {
-    "description": "Simple QR code card.",
+    "description": "QR code generator card",
     "invalid_configuration": "Invalid configuration",
     "loading": "Loading..."
   },
