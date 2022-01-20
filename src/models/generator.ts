@@ -7,7 +7,7 @@ import {
     TextSourceConfig,
     WiFiSourceConfig,
 } from "../types/types";
-import { AuthenticationType } from "./authentication-type";
+import { is_password_protected } from "./authentication-type";
 import { SourceType } from "./source-type";
 import { localize } from "../localize/localize";
 import { HomeAssistant } from "custom-card-helpers";
@@ -66,7 +66,7 @@ class WiFiQRCodeGenerator extends QRCodeGenerator<WiFiSourceConfig> {
     protected get input(): string {
         let text = `WIFI:T:${this.config.auth_type || ""};S:${this._escape(this.config.ssid || "")};`;
 
-        if (this.config.auth_type !== AuthenticationType.NOPASS) {
+        if (is_password_protected(this.config.auth_type)) {
             text += `P:${this._escape(this.config.password || "")};`
         }
 

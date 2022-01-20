@@ -6,6 +6,7 @@
   },
   "editor": {
     "label": {
+      "title": "Title (optional)",
       "source": "Source type (required)",
       "text": "Text (required)",
       "entity": "Entity (required)",
@@ -13,6 +14,10 @@
       "ssid": "SSID (required)",
       "password": "Password (required)",
       "is_hidden": "Hidden (optional)"
+    },
+    "title": {
+      "show_password": "Show password",
+      "hide_password": "Hide password"
     },
     "options": {
       "source": {

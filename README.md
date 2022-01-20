@@ -28,6 +28,18 @@ This card provides a possibility to generate QRCode in Home Assistant interface.
         <th>Description</th>
     </tr>
     <tr>
+        <td colspan="5" style="text-align: center">
+            General options
+        </td>
+    </tr>
+    <tr>
+        <td><code>title</code></td>
+        <td>string</td>
+        <td>no</td>
+        <td>empty</td>
+        <td>Title for the card</td>
+    </tr>
+    <tr>
         <td><code>source</code></td>
         <td>string</td>
         <td>yes</td>

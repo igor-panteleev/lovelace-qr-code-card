@@ -3,59 +3,110 @@ import {
     QRCodeCardConfig,
     TextSourceConfig,
     WiFiSourceConfig,
-    EntitySourceConfig
+    EntitySourceConfig,
+    QRCodeValidatorClass
 } from "./types/types";
 import { localize } from "./localize/localize";
 import { SourceType } from "./models/source-type";
-import { AuthenticationType } from "./models/authentication-type";
-
-function validateSource(source: SourceType): string[] {
-    if (!source) return ["validation.source.missing"];
-    if (!Object.values(SourceType).includes(source)) return ["validation.source.invalid"];
-    return [];
-}
-
-function validateTextConfig(text: string): string[] {
-    if (!text) return ["validation.text.missing"];
-    return [];
-}
+import { AuthenticationType, is_password_protected } from "./models/authentication-type";
 
 
-function validateWiFiConfig(auth_type: AuthenticationType, ssid: string, password: string | undefined): string[] {
-    if (!auth_type) return ["validation.auth_type.missing"];
-    if (!Object.values(AuthenticationType).includes(auth_type)) return ["validation.auth_type.invalid"];
+abstract class Validator<T> {
 
-    const errors: string[] = [];
-    if (!ssid) {
-        errors.push("validation.ssid.missing");
+    protected readonly config: T;
+
+    public constructor(config: T) {
+        this.config = config;
     }
-    if (auth_type != AuthenticationType.NOPASS && !password) {
-        errors.push("validation.password.missing");
+
+    public validate(): string[] {
+        return this._validate()
     }
-    return errors;
+
+    protected abstract _validate(): string[]
+
 }
 
-function validateEntityConfig(entity: string): string[] {
-    if (!entity) return ["validation.entity.missing"];
-    return [];
+class SourceValidator extends Validator<QRCodeCardConfig> {
+    protected _validate(): string[] {
+        const errors: string[] = [];
+
+        if (!this.config.source) {
+            errors.push("validation.source.missing");
+        }
+        else {
+            if (!Object.values(SourceType).includes(this.config.source)) {
+                errors.push("validation.source.invalid");
+            }
+        }
+
+        return errors;
+    }
 }
+
+class TextValidator extends Validator<TextSourceConfig> {
+    protected _validate(): string[] {
+        const errors: string[] = [];
+
+        if (!this.config.text) errors.push("validation.text.missing");
+
+        return errors;
+    }
+}
+
+class WiFiValidator extends Validator<WiFiSourceConfig> {
+    protected _validate(): string[] {
+        const errors: string[] = [];
+
+        // Validate auth type
+        if (!this.config.auth_type) {
+            errors.push("validation.auth_type.missing");
+        }
+        else {
+            if (!Object.values(AuthenticationType).includes(this.config.auth_type)){
+                errors.push("validation.auth_type.invalid");
+            }
+        }
+
+        // Validate ssid
+        if (!this.config.ssid) {
+            errors.push("validation.ssid.missing");
+        }
+
+        // Validate password
+        if (is_password_protected(this.config.auth_type) && !this.config.password) {
+            errors.push("validation.password.missing");
+        }
+
+        return errors;
+    }
+}
+
+class EntityValidator extends Validator<EntitySourceConfig> {
+    protected _validate(): string[] {
+        const errors: string[] = [];
+
+        if (!this.config.entity) errors.push("validation.entity.missing");
+
+        return errors;
+    }
+}
+
+const validatorMap = new Map<SourceType, QRCodeValidatorClass<Validator<QRCodeCardConfig>>>([
+    [SourceType.TEXT, TextValidator],
+    [SourceType.WIFI, WiFiValidator],
+    [SourceType.ENTITY, EntityValidator]
+]);
 
 export function validateConfig(config: QRCodeCardConfig): string[] {
     const errors: TranslatableString[] = [];
-    validateSource(config.source).forEach(e => errors.push(e));
-    switch (config.source) {
-        case SourceType.TEXT:
-            config = config as TextSourceConfig;
-            validateTextConfig(config.text).forEach(e => errors.push(e));
-            break;
-        case SourceType.WIFI:
-            config = config as WiFiSourceConfig;
-            validateWiFiConfig(config.auth_type, config.ssid, config.password).forEach(e => errors.push(e));
-            break;
-        case SourceType.ENTITY:
-            config = config as EntitySourceConfig;
-            validateEntityConfig(config.entity).forEach(e => errors.push(e));
-            break;
+
+    new SourceValidator(config).validate().forEach(e => errors.push(e));
+
+    if (errors.length == 0) {
+        const validatorCls = validatorMap.get(config.source);
+        if (validatorCls) new validatorCls(config).validate().forEach(e => errors.push(e));
     }
+
     return errors.map(e => localize(e, config.language));
 }
