@@ -15,6 +15,10 @@
       "password": "Password (required)",
       "is_hidden": "Hidden (optional)"
     },
+    "title": {
+      "show_password": "Show password",
+      "hide_password": "Hide password"
+    },
     "options": {
       "source": {
         "text": "Text",
