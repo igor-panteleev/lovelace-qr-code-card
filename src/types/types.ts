@@ -17,6 +17,7 @@ export type Language = string | undefined;
 export type DataUrl = string;
 
 export type QRCodeGeneratorClass<T> = new (...args: any[]) => T;
+export type QRCodeValidatorClass<T> = new (...args: any[]) => T;
 
 export interface BaseQRCodeCardConfig extends LovelaceCardConfig {
     readonly language?: Language;
