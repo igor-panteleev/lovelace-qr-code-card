@@ -8,7 +8,7 @@ import {
 } from "./types/types";
 import { localize } from "./localize/localize";
 import { SourceType } from "./models/source-type";
-import { AuthenticationType } from "./models/authentication-type";
+import { AuthenticationType, is_password_protected } from "./models/authentication-type";
 
 
 abstract class Validator<T> {
@@ -74,7 +74,7 @@ class WiFiValidator extends Validator<WiFiSourceConfig> {
         }
 
         // Validate password
-        if ([AuthenticationType.WEP, AuthenticationType.WPA].includes(this.config.auth_type) && !this.config.password) {
+        if (is_password_protected(this.config.auth_type) && !this.config.password) {
             errors.push("validation.password.missing");
         }
 

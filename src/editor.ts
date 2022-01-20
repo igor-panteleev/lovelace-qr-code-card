@@ -11,7 +11,7 @@ import {
 } from "./types/types";
 import { localizeWithHass } from "./localize/localize";
 import { SourceType } from "./models/source-type";
-import { AuthenticationType } from "./models/authentication-type";
+import { AuthenticationType, is_password_protected } from "./models/authentication-type";
 import { EDITOR_CUSTOM_ELEMENT_NAME } from "./const";
 
 
@@ -139,7 +139,7 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
                         .configValue=${"ssid"}
                         @value-changed=${this._valueChanged}></paper-input>
                 </div>
-                ${this._auth_type != AuthenticationType.NOPASS ? html`
+                ${is_password_protected(this._auth_type) ? html`
                 <div class="values">
                     <paper-input
                         label=${this._localize("editor.label.password")}
