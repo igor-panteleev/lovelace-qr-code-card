@@ -21,6 +21,7 @@ export type QRCodeValidatorClass<T> = new (...args: any[]) => T;
 
 export interface BaseQRCodeCardConfig extends LovelaceCardConfig {
     readonly language?: Language;
+    readonly title?: string;
     readonly source: SourceType;
 }
 

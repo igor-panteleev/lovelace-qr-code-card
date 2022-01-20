@@ -32,6 +32,10 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
         return true;
     }
 
+    get _title(): string {
+        return this._config?.title || "";
+    }
+
     get _source(): SourceType | undefined {
         return this._config?.source;
     }
@@ -79,6 +83,14 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
 
         return html`
             <div class="card-config">
+                <div class="values">
+                    <paper-input
+                        label=${this._localize("editor.label.title")}
+                        .value=${this._title}
+                        .configValue=${"title"}
+                        @value-changed=${this._valueChanged}></paper-input>
+                </div>
+                
                 <div class="values">
                     <paper-dropdown-menu
                         label=${this._localize("editor.label.source")}

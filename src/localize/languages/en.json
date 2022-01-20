@@ -6,6 +6,7 @@
   },
   "editor": {
     "label": {
+      "title": "Title (optional)",
       "source": "Source type (required)",
       "text": "Text (required)",
       "entity": "Entity (required)",
