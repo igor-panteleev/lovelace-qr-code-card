@@ -13,7 +13,7 @@
       "auth_type": "Authentication type (required)",
       "ssid": "SSID (required)",
       "password": "Password (required)",
-      "is_hidden": "Hidden (optional)"
+      "is_hidden": "Hidden SSID"
     },
     "title": {
       "show_password": "Show password",

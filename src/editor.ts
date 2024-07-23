@@ -1,3 +1,4 @@
+import { mdiEye, mdiEyeOff } from "@mdi/js";
 import { css, CSSResultGroup, html, LitElement, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators";
 import { fireEvent, HomeAssistant, LovelaceCardEditor } from "custom-card-helpers";
@@ -85,80 +86,76 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
         return html`
             <div class="card-config">
                 <div class="values">
-                    <paper-input
+                    <ha-textfield
                         label=${this._localize("editor.label.title")}
                         .value=${this._title}
                         .configValue=${"title"}
-                        @value-changed=${this._valueChanged}></paper-input>
+                        @input=${this._valueChanged}></ha-textfield>
                 </div>
                 
                 <div class="values">
-                    <paper-dropdown-menu
-                        label=${this._localize("editor.label.source")}
-                        @iron-select=${this._selectionChanged}
-                        .configValue=${"source"}>
-                        <paper-listbox
-                            slot="dropdown-content"
-                            attr-for-selected="value"
-                            .selected=${this._source}>
-                            ${Object.values(SourceType).map(source => {
-                                return html`<paper-item .value=${source}>${this._localize(`editor.options.source.${source}`)}</paper-item>`;
-                            })}
-                        </paper-listbox>
-                    </paper-dropdown-menu>
+                    <ha-select
+                        naturalMenuWidth
+                        fixedMenuPosition
+                        label="${this._localize("editor.label.source")}"
+                        @selected="${this._valueChanged}"
+                        @closed="${ev => ev.stopPropagation()}"
+                        .configValue="${"source"}"
+                        .value="${this._source}">
+                        ${Object.values(SourceType).map(source => {
+                            return html` <mwc-list-item .value="${source}">${this._localize(`editor.options.source.${source}`)}</mwc-list-item> `;
+                        })}
+                    </ha-select>
                 </div>
                 
                 ${this._config?.source == SourceType.TEXT ? html`
                 <div class="values">
-                    <paper-input
-                        label=${this._localize("editor.label.text")}
-                        .value=${this._text}
-                        .configValue=${"text"}
-                        @value-changed=${this._valueChanged}></paper-input>
+                    <ha-textfield
+                        label="${this._localize("editor.label.text")}"
+                        .value="${this._text}"
+                        .configValue="${"text"}"
+                        @input="${this._valueChanged}"></ha-textfield>
                 </div>` : ""}
                 
                 ${this._config?.source == SourceType.WIFI ? html`
                 <div class="values">
-                    <paper-dropdown-menu
-                        label=${this._localize("editor.label.auth_type")}
-                        @iron-select=${this._selectionChanged}
-                        .configValue=${"auth_type"}>
-                        <paper-listbox
-                            slot="dropdown-content"
-                            attr-for-selected="value"
-                            .selected=${this._auth_type}>
-                            ${Object.values(AuthenticationType).map(auth_type => {
-                                return html`<paper-item .value=${auth_type}>${this._localize(`editor.options.auth_type.${auth_type}`)}</paper-item>`;
-                            })}
-                        </paper-listbox>
-                    </paper-dropdown-menu>
+                    <ha-select
+                        naturalMenuWidth
+                        fixedMenuPosition
+                        label="${this._localize("editor.label.auth_type")}"
+                        @selected="${this._valueChanged}"
+                        @closed="${ev => ev.stopPropagation()}"
+                        .configValue="${"auth_type"}"
+                        .value="${this._auth_type}">
+                        ${Object.values(AuthenticationType).map(auth_type => {
+                            return html` <mwc-list-item .value="${auth_type}">${this._localize(`editor.options.auth_type.${auth_type}`)}</mwc-list-item> `;
+                        })}
+                    </ha-select>
                 </div>
                 <div class="values">
-                    <paper-input
+                    <ha-textfield
                         label=${this._localize("editor.label.ssid")}
                         .value=${this._ssid}
                         .configValue=${"ssid"}
-                        @value-changed=${this._valueChanged}></paper-input>
+                        @input=${this._valueChanged}></ha-textfield>
                 </div>
                 ${is_password_protected(this._auth_type) ? html`
                 <div class="values">
-                    <paper-input
-                        type=${this._unmaskedPassword ? "text" : "password"}
-                        label=${this._localize("editor.label.password")}
+                    <ha-textfield
+                        .type=${this._unmaskedPassword ? "text" : "password"}
+                        .label=${this._localize("editor.label.password")}
                         .value=${this._password}
                         .configValue=${"password"}
-                        @value-changed=${this._valueChanged}>
-                        <ha-icon-button
-                            toggles
-                            .active=${this._unmaskedPassword}
-                            title=${this._unmaskedPassword ? this._localize("editor.title.hide_password") : this._localize("editor.title.show_password")}
-                            slot="suffix"
-                            @click=${this._toggleUnmaskedPassword}>
-                            <ha-icon
-                                .icon=${this._unmaskedPassword ? "hass:eye-off" : "hass:eye"}>
-                            </ha-icon>
-                        </ha-icon-button>
-                    </paper-input>
+                        .suffix="${html`<div style="width: 24px"></div>`}"
+                        @input=${this._valueChanged}>
+                    </ha-textfield>
+                    <ha-icon-button
+                        toggles
+                        .label=${this._unmaskedPassword ? this._localize("editor.title.hide_password") : this._localize("editor.title.show_password")}
+                        @click=${this._toggleUnmaskedPassword}
+                        .path=${this._unmaskedPassword ? mdiEyeOff : mdiEye}
+                    ></ha-icon-button>
+                    
                 </div>
                 ` : ""}
                 <div class="values">
@@ -173,18 +170,19 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
               
               ${this._config?.source == SourceType.ENTITY ? html`
                 <div class="values">
-                    <paper-dropdown-menu
-                        label=${this._localize("editor.label.entity")}
-                        @value-changed=${this._valueChanged}
-                        .configValue=${"entity"}>
-                        <paper-listbox slot="dropdown-content" .selected=${entities.indexOf(this._entity)}>
-                            ${entities.map(entity => {
-                                return html` <paper-item>${entity}</paper-item> `;
-                            })}
-                        </paper-listbox>
-                    </paper-dropdown-menu>
+                    <ha-select
+                        naturalMenuWidth
+                        fixedMenuPosition
+                        label="${this._localize("editor.label.entity")}"
+                        @selected="${this._valueChanged}"
+                        @closed="${ev => ev.stopPropagation()}"
+                        .configValue="${"entity"}"
+                        .value="${this._entity}">
+                        ${entities.map(entity => {
+                            return html` <mwc-list-item .value="${entity}">${entity}</mwc-list-item>`;
+                        })}
+                    </ha-select>
                 </div>` : ""}
-              
             </div>
         `;
     }
@@ -193,11 +191,6 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
         if (this.hass === undefined) return;
         if (this._config === undefined) return;
         this._initialized = true;
-    }
-
-    private _selectionChanged(ev): void {
-        ev.stopPropagation();
-        this._updateConfig(ev.currentTarget.configValue, ev.detail.item.value);
     }
 
     private _valueChanged(ev): void {
@@ -235,21 +228,27 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
     static get styles(): CSSResultGroup {
         return css`
             .values {
-                padding-left: 16px;
-                margin: 8px;
-                display: grid;
+              margin-top: 8px;
+              margin-bottom: 16px;
+              display: block;
+              position: relative;
             }
             
-            .values ha-icon-button {
-                flex-direction: column;
-                width: 24px;
-                height: 24px;
-                --mdc-icon-button-size: 24px;
-                color: var(--secondary-text-color);
+            ha-textfield,
+            ha-select {
+                width: 100%;
             }
             
-            .values ha-icon {
-              display: flex;
+            ha-icon-button {
+              position: absolute;
+              top: 8px;
+              right: 8px;
+              inset-inline-start: initial;
+              inset-inline-end: 8px;
+              --mdc-icon-button-size: 40px;
+              --mdc-icon-size: 20px;
+              color: var(--secondary-text-color);
+              direction: var(--direction);
             }
         `;
     }
