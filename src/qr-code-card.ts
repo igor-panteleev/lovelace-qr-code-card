@@ -4,9 +4,10 @@ import { PropertyValues } from "@lit/reactive-element";
 import { HomeAssistant, LovelaceCard, LovelaceCardEditor } from "custom-card-helpers";
 
 import "./editor";
-import type { DataUrl, QRCodeCardConfig, TranslatableString } from "./types/types";
+import type {QRCodeCardConfig, TranslatableString } from "./types/types";
 
 import { localize, localizeWithHass } from "./localize/localize";
+import { getWatchedEntities, hasConfigOrAnyEntityChanged } from "./utils"
 import { version } from '../package.json';
 import { generateQR } from "./models/generator";
 import { validateConfig } from "./validators";
@@ -44,6 +45,7 @@ export class QRCodeCard extends LitElement {
     }
 
     private config!: QRCodeCardConfig;
+    private watchedEntities: string[] = [];
     @property({ attribute: false }) public _hass!: HomeAssistant;
     @state() private errors: string[] = [];
     @state() private dataUrl = "";
@@ -67,16 +69,20 @@ export class QRCodeCard extends LitElement {
             return;
         }
 
-        this._generateQR();
+        this.watchedEntities = getWatchedEntities(this.config)
+        this.requestUpdate("config");
     }
 
-    private _generateQR(): void {
-        generateQR(this.hass, this.config)
-            .then((data_url: DataUrl) => {
-                this.dataUrl = data_url;
-            }).catch((e: Error) => {
-                this.errors = [e.message];
-            })
+    private async _updateQR(): Promise<void> {
+        try {
+            this.dataUrl = await generateQR(this.hass, this.config);
+        } catch (e: unknown) {
+            if (e instanceof Error) {
+                this.errors = [e.message]
+            } else {
+                this.errors = ['An unknown error occurred'];
+            }
+        }
     }
 
     private _localize(ts: TranslatableString): string {
@@ -84,19 +90,16 @@ export class QRCodeCard extends LitElement {
     }
 
     protected shouldUpdate(changedProperties: PropertyValues): boolean {
-        if (changedProperties.has('dataUrl') || changedProperties.has('errors')) return true;
-
-        if (this.config?.entity) {
-            const oldHass = changedProperties.get('_hass') as HomeAssistant | undefined;
-            if (oldHass) {
-                return (
-                    oldHass.states[this.config.entity] !== this.hass.states[this.config.entity]
-                );
-            }
+        if (!this.config) {
+            return false;
         }
-
-        return false;
+        return hasConfigOrAnyEntityChanged(this.watchedEntities, changedProperties, false, this.hass);
     }
+
+    protected async update(changedProperties: PropertyValues): Promise<void> {
+        await this._updateQR();
+        super.update(changedProperties);
+  }
 
     protected render(): TemplateResult {
         if (this.errors.length > 0) {
