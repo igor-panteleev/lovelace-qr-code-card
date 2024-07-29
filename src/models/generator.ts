@@ -7,10 +7,11 @@ import {
     TextSourceConfig,
     WiFiSourceConfig,
 } from "../types/types";
-import { is_password_protected } from "./authentication-type";
+import { isPasswordProtected } from "./authentication-type";
 import { SourceType } from "./source-type";
-import { localize } from "../localize/localize";
+import { getValueFromConfig } from "../utils"
 import { HomeAssistant } from "custom-card-helpers";
+import { TranslatableError } from "./error";
 
 
 abstract class QRCodeGenerator<T> {
@@ -33,8 +34,13 @@ abstract class QRCodeGenerator<T> {
         try {
             return QRCode.toDataURL(this.input, this.quality);
         }
-        catch (e: any) {
-            throw new Error(localize("generation.error"))
+        catch (e: unknown) {
+            if (e instanceof TranslatableError) {
+                throw e
+            } else if (e instanceof Error) {
+                throw new TranslatableError(["generation.error", "{message}", e.message])
+            }
+            throw new TranslatableError("generation.unknown_error")
         }
     }
 
@@ -64,10 +70,12 @@ class WiFiQRCodeGenerator extends QRCodeGenerator<WiFiSourceConfig> {
     }
 
     protected get input(): string {
-        let text = `WIFI:T:${this.config.auth_type || ""};S:${this._escape(this.config.ssid || "")};`;
+        const ssid = getValueFromConfig(this.hass, this.config, "ssid");
+        let text = `WIFI:T:${this.config.auth_type || ""};S:${this._escape(ssid)};`;
 
-        if (is_password_protected(this.config.auth_type)) {
-            text += `P:${this._escape(this.config.password || "")};`
+        if (isPasswordProtected(this.config.auth_type)) {
+            const password = getValueFromConfig(this.hass, this.config, "password");
+            text += `P:${this._escape(password)};`
         }
 
         if (!this.config.is_hidden) {
@@ -80,7 +88,7 @@ class WiFiQRCodeGenerator extends QRCodeGenerator<WiFiSourceConfig> {
 
 class EntityQRCodeGenerator extends QRCodeGenerator<EntitySourceConfig> {
     protected get input(): string {
-        return this.hass?.states[this.config.entity].state
+        return getValueFromConfig(this.hass, this.config, "entity")
     }
 }
 
@@ -94,7 +102,7 @@ const generatorMap = new Map<SourceType, QRCodeGeneratorClass<QRCodeGenerator<QR
 export async function generateQR(hass: HomeAssistant, config: QRCodeCardConfig): Promise<DataUrl> {
     const generatorCls = generatorMap.get(config.source);
 
-    if (!generatorCls) throw new Error(localize("validation.source.invalid"));
+    if (!generatorCls) throw new TranslatableError("validation.source.invalid");
 
     return await (new generatorCls(hass, config)).generate();
 }

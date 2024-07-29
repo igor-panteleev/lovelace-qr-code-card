@@ -12,7 +12,7 @@ import {
 } from "./types/types";
 import { localizeWithHass } from "./localize/localize";
 import { SourceType } from "./models/source-type";
-import { AuthenticationType, is_password_protected } from "./models/authentication-type";
+import { AuthenticationType, isPasswordProtected } from "./models/authentication-type";
 import { EDITOR_CUSTOM_ELEMENT_NAME } from "./const";
 
 
@@ -54,12 +54,18 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
 
     get _ssid(): string {
         const config = this._config as WiFiSourceConfig | undefined;
-        return config?.ssid || "";
+        if (typeof config?.ssid === "string") {
+            return config?.ssid || "";
+        }
+        return ""
     }
 
     get _password(): string {
         const config = this._config as WiFiSourceConfig | undefined;
-        return config?.password || "";
+        if (typeof config?.password === "string") {
+            return config?.password || "";
+        }
+        return "";
     }
 
     get _is_hidden(): boolean {
@@ -72,6 +78,10 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
         return config?.entity || ""
     }
 
+    private _isDisabled(): boolean {
+        return typeof this._config?.ssid !== "string" || typeof this._config?.password !== "string";
+    }
+
     private _localize(ts: TranslatableString): string {
         return localizeWithHass(ts, this.hass, this._config);
     }
@@ -79,6 +89,13 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
     protected render(): TemplateResult | void {
         if (!this.hass) {
             return html``;
+        }
+
+        if (this._isDisabled()) {
+            return html`
+                <div class="card-config">
+                    <div class="error">${this._localize("editor.yaml_mode")}</div>
+                </div>`;
         }
 
         const entities = Object.keys(this.hass.states);
@@ -139,7 +156,7 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
                         .configValue=${"ssid"}
                         @input=${this._valueChanged}></ha-textfield>
                 </div>
-                ${is_password_protected(this._auth_type) ? html`
+                ${isPasswordProtected(this._auth_type) ? html`
                 <div class="values">
                     <ha-textfield
                         .type=${this._unmaskedPassword ? "text" : "password"}
@@ -249,6 +266,10 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
               --mdc-icon-size: 20px;
               color: var(--secondary-text-color);
               direction: var(--direction);
+            }
+            
+            .error {
+                color: var(--error-color);
             }
         `;
     }

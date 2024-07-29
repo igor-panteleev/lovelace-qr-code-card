@@ -13,6 +13,7 @@ import { generateQR } from "./models/generator";
 import { validateConfig } from "./validators";
 import { SourceType } from "./models/source-type";
 import { CARD_CUSTOM_ELEMENT_NAME, EDITOR_CUSTOM_ELEMENT_NAME } from "./const";
+import { TranslatableError } from "./models/error";
 
 console.info(
   `%c QR-CODE-GENERATOR %c ${version} `,
@@ -77,10 +78,10 @@ export class QRCodeCard extends LitElement {
         try {
             this.dataUrl = await generateQR(this.hass, this.config);
         } catch (e: unknown) {
-            if (e instanceof Error) {
+            if (e instanceof TranslatableError) {
                 this.errors = [e.message]
             } else {
-                this.errors = ['An unknown error occurred'];
+                this.errors = [this._localize("generation.unknown_error")];
             }
         }
     }
@@ -147,8 +148,8 @@ export class QRCodeCard extends LitElement {
                 flex-direction: column;
                 flex: 1;
                 position: relative;
-                padding: 0px;
-                border-radius: 4px;
+                padding: 0;
+                border-radius: 6px;
                 overflow: hidden;
             }
             .qrcode {

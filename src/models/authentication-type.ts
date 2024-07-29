@@ -6,6 +6,6 @@ export enum AuthenticationType {
 
 const PasswordAuthenticationTypes = [AuthenticationType.WEP, AuthenticationType.WPA];
 
-export function is_password_protected(auth_type: AuthenticationType | undefined): boolean {
+export function isPasswordProtected(auth_type: AuthenticationType | undefined): boolean {
     return auth_type !== undefined && PasswordAuthenticationTypes.includes(auth_type);
 }

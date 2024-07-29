@@ -8,7 +8,7 @@ import {
 } from "./types/types";
 import { localize } from "./localize/localize";
 import { SourceType } from "./models/source-type";
-import { AuthenticationType, is_password_protected } from "./models/authentication-type";
+import { AuthenticationType, isPasswordProtected } from "./models/authentication-type";
 
 
 abstract class Validator<T> {
@@ -71,11 +71,17 @@ class WiFiValidator extends Validator<WiFiSourceConfig> {
         // Validate ssid
         if (!this.config.ssid) {
             errors.push("validation.ssid.missing");
+        } else if (typeof this.config.ssid !== "string" && !this.config.ssid.hasOwnProperty("entity")) {
+            errors.push("validation.ssid.entity.missing")
         }
 
         // Validate password
-        if (is_password_protected(this.config.auth_type) && !this.config.password) {
-            errors.push("validation.password.missing");
+        if (isPasswordProtected(this.config.auth_type)) {
+            if (!this.config.password) {
+                errors.push("validation.password.missing");
+            } else if (typeof this.config.password !== "string" && !this.config.password.hasOwnProperty("entity")) {
+                errors.push("validation.password.entity.missing")
+            }
         }
 
         return errors;

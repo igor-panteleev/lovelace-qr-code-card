@@ -19,6 +19,11 @@ export type DataUrl = string;
 export type QRCodeGeneratorClass<T> = new (...args: any[]) => T;
 export type QRCodeValidatorClass<T> = new (...args: any[]) => T;
 
+export interface EntityConfig {
+    readonly entity: string;
+    readonly attribute?: string;
+}
+
 export interface BaseQRCodeCardConfig extends LovelaceCardConfig {
     readonly language?: Language;
     readonly title?: string;
@@ -31,8 +36,8 @@ export interface TextSourceConfig extends BaseQRCodeCardConfig {
 
 export interface WiFiSourceConfig extends BaseQRCodeCardConfig {
     readonly auth_type: AuthenticationType;
-    readonly ssid: string;
-    readonly password?: string;
+    readonly ssid: string | EntityConfig;
+    readonly password?: string | EntityConfig;
     readonly is_hidden?: boolean;
 }
 
