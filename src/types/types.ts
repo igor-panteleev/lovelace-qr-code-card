@@ -26,6 +26,7 @@ export interface EntityConfig {
 
 export interface BaseQRCodeCardConfig extends LovelaceCardConfig {
     readonly language?: Language;
+    readonly debug?: boolean;
     readonly title?: string;
     readonly source: SourceType;
 }

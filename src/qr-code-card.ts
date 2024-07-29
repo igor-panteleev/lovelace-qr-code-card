@@ -123,6 +123,7 @@ export class QRCodeCard extends LitElement {
         return html`
             <ha-card>
                 ${(this.config?.title ?? "").length > 0 ? html`<h1 class="card-header">${this.config.title}</h1>`: ""}
+                ${(this.config?.debug ?? false) ? html`<p>Input string: ${this.inputString}</p>`: ""}
                 <div class="qrcode-overlay">
                     <img class="qrcode" src="${this.dataUrl}">
                 </div>

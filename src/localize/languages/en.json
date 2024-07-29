@@ -13,7 +13,8 @@
       "auth_type": "Authentication type (required)",
       "ssid": "SSID (required)",
       "password": "Password (required)",
-      "is_hidden": "Hidden SSID"
+      "is_hidden": "Hidden SSID",
+      "is_debug": "Debug mode (Show value for QR code)"
     },
     "title": {
       "show_password": "Show password",
@@ -31,9 +32,12 @@
         "nopass": "None"
       }
     },
-    "yaml_mode": "Getting SSID and password from entity is not supported in visual editor mode. Please switch to code editor mode."
+    "yaml_mode": "Configuring SSID and password from entity is not supported in visual editor mode. Please switch to code editor mode."
   },
   "validation": {
+    "debug": {
+      "invalid": "Debug mode must be true or false"
+    },
     "source": {
       "missing": "Missing property: source",
       "invalid": "Invalid source type"

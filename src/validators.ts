@@ -27,6 +27,18 @@ abstract class Validator<T> {
 
 }
 
+class DebugModeValidator extends Validator<QRCodeCardConfig> {
+    protected _validate(): string[] {
+        const errors: string[] = [];
+
+        if (this.config.debug !== undefined && typeof this.config.debug !== "boolean") {
+            errors.push("validation.debug.invalid");
+        }
+
+        return errors;
+    }
+}
+
 class SourceValidator extends Validator<QRCodeCardConfig> {
     protected _validate(): string[] {
         const errors: string[] = [];
@@ -108,6 +120,7 @@ export function validateConfig(config: QRCodeCardConfig): string[] {
     const errors: TranslatableString[] = [];
 
     new SourceValidator(config).validate().forEach(e => errors.push(e));
+    new DebugModeValidator(config).validate().forEach(e => errors.push(e));
 
     if (errors.length == 0) {
         const validatorCls = validatorMap.get(config.source);

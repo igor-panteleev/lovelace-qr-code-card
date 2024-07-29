@@ -72,6 +72,11 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
         const config = this._config as WiFiSourceConfig | undefined;
         return config?.is_hidden || false;
     }
+
+    get _is_debug(): boolean {
+        const config = this._config as QRCodeCardConfig | undefined;
+        return config?.debug || false;
+    }
     
     get _entity(): string {
         const config = this._config as EntitySourceConfig | undefined;
@@ -79,7 +84,7 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
     }
 
     private _isDisabled(): boolean {
-        return typeof this._config?.ssid !== "string" || typeof this._config?.password !== "string";
+        return this._config?.source === SourceType.WIFI && (typeof this._config?.ssid !== "string" || typeof this._config?.password !== "string");
     }
 
     private _localize(ts: TranslatableString): string {
@@ -200,6 +205,15 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
                         })}
                     </ha-select>
                 </div>` : ""}
+                
+                <div class="values">
+                    <ha-formfield .label=${this._localize("editor.label.is_debug")}>
+                        <ha-switch
+                            .checked=${this._is_debug}
+                            .configValue=${"debug"}
+                            @change=${this._valueChanged}></ha-switch>
+                    </ha-formfield>
+                </div>
             </div>
         `;
     }
