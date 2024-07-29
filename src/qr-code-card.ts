@@ -9,7 +9,8 @@ import type {QRCodeCardConfig, TranslatableString } from "./types/types";
 import { localize, localizeWithHass } from "./localize/localize";
 import { getWatchedEntities, hasConfigOrAnyEntityChanged } from "./utils"
 import { version } from '../package.json';
-import { generateQR } from "./models/generator";
+import { getInputString } from "./models/data-builder";
+import { generateQR } from "./generator";
 import { validateConfig } from "./validators";
 import { SourceType } from "./models/source-type";
 import { CARD_CUSTOM_ELEMENT_NAME, EDITOR_CUSTOM_ELEMENT_NAME } from "./const";
@@ -47,6 +48,7 @@ export class QRCodeCard extends LitElement {
 
     private config!: QRCodeCardConfig;
     private watchedEntities: string[] = [];
+    private inputString!: string;
     @property({ attribute: false }) public _hass!: HomeAssistant;
     @state() private errors: string[] = [];
     @state() private dataUrl = "";
@@ -76,7 +78,8 @@ export class QRCodeCard extends LitElement {
 
     private async _updateQR(): Promise<void> {
         try {
-            this.dataUrl = await generateQR(this.hass, this.config);
+            this.inputString = getInputString(this.hass, this.config)
+            this.dataUrl = await generateQR(this.inputString);
         } catch (e: unknown) {
             if (e instanceof TranslatableError) {
                 this.errors = [e.message]
@@ -98,13 +101,15 @@ export class QRCodeCard extends LitElement {
     }
 
     protected async update(changedProperties: PropertyValues): Promise<void> {
-        await this._updateQR();
+        if (this.errors.length == 0) {
+            await this._updateQR();
+        }
         super.update(changedProperties);
   }
 
     protected render(): TemplateResult {
         if (this.errors.length > 0) {
-            return this._showErrors(this.errors);
+            return this._showErrors();
         }
 
         if (!this.dataUrl) {
@@ -125,15 +130,16 @@ export class QRCodeCard extends LitElement {
           `
     }
 
-    private _showErrors(errors: string[]): TemplateResult {
-        errors.forEach(e => console.error(e));
+    private _showErrors(): TemplateResult {
+        this.errors.forEach(e => console.error(e));
         const errorCard = document.createElement("hui-error-card") as LovelaceCard;
-        errorCard.setConfig({
-            type: "error",
-            error: errors[0],
-            origConfig: this.config,
+        customElements.whenDefined("hui-error-card").then(() => {
+            errorCard.setConfig({
+                type: "error",
+                error: this.errors[0],
+                origConfig: this.config,
+            });
         });
-
         return html` ${errorCard} `;
     }
 
