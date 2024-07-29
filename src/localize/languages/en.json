@@ -13,7 +13,8 @@
       "auth_type": "Authentication type (required)",
       "ssid": "SSID (required)",
       "password": "Password (required)",
-      "is_hidden": "Hidden SSID"
+      "is_hidden": "Hidden SSID",
+      "is_debug": "Debug mode (Show value for QR code)"
     },
     "title": {
       "show_password": "Show password",
@@ -30,9 +31,13 @@
         "WPA": "WPA",
         "nopass": "None"
       }
-    }
+    },
+    "yaml_mode": "Configuring SSID and password from entity is not supported in visual editor mode. Please switch to code editor mode."
   },
   "validation": {
+    "debug": {
+      "invalid": "Debug mode must be true or false"
+    },
     "source": {
       "missing": "Missing property: source",
       "invalid": "Invalid source type"
@@ -45,16 +50,29 @@
       "invalid": "Invalid authentication type"
     },
     "ssid": {
-      "missing": "Missing property: ssid"
+      "missing": "Missing property: ssid",
+      "unknown_type": "Unsupported data type for SSID: {type}",
+      "unknown_entity": "Entity specified for SSID is unknown: {entity}",
+      "unknown_attribute": "Attribute specified for SSID is unknown: {attribute}",
+      "unavailable": "Entity specified for SSID is unavailable: {entity}"
     },
     "password": {
-      "missing": "Missing property: password"
+      "missing": "Missing property: password",
+      "unknown_type": "Unsupported data type for password: {type}",
+      "unknown_entity": "Entity specified for password is unknown: {entity}",
+      "unknown_attribute": "Attribute specified for password is unknown: {attribute}",
+      "unavailable": "Entity specified for password is unavailable: {entity}"
     },
     "entity": {
-      "missing": "Missing property: entity"
+      "missing": "Missing property: entity",
+      "unknown_type": "Unsupported data type for entity: {type}",
+      "unknown_entity": "Unknown entity: {entity}",
+      "unknown_attribute": "Attribute specified for entity is unknown: {attribute}",
+      "unavailable": "Entity is unavailable: {entity}"
     }
   },
   "generation": {
-    "error": "An error occurred while generating QR-Code"
+    "error": "An error occurred while generating QR-Code: {message}",
+    "unknown_error": "An error occurred while generating QR-Code"
   }
 }

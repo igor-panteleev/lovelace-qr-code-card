@@ -2,6 +2,7 @@ import { PropertyValues } from "@lit/reactive-element";
 import { HomeAssistant } from "custom-card-helpers";
 import { QRCodeCardConfig } from "./types/types"
 import { SourceType } from "./models/source-type";
+import { TranslatableError } from "./models/error";
 
 export function hasConfigOrAnyEntityChanged(
     watchedEntities: string[],
@@ -24,11 +25,11 @@ export function getWatchedEntities(config: QRCodeCardConfig): string[] {
             watchedEntities.add(config.entity);
             break;
 
-        // TODO: add support to use entities for WIFI QR code
-        // case SourceType.WIFI:
-        //     if (config.ssid.hasOwnProperty("entity")) watchedEntities.add(config.ssid["entity"]);
-        //     if (config.password.hasOwnProperty("entity")) watchedEntities.add(config.password["entity"]);
+        case SourceType.WIFI:
+            if (config.ssid.hasOwnProperty("entity")) watchedEntities.add(config.ssid["entity"]);
+            if (config.password.hasOwnProperty("entity")) watchedEntities.add(config.password["entity"]);
     }
 
     return [...watchedEntities];
 }
+

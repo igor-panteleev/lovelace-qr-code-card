@@ -1,12 +1,6 @@
 [![hacs_badge][hacs_shield]][hacs]
 [![GitHub Latest Release][releases_shield]][latest_release]
 
-[hacs_shield]: https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge
-[hacs]: https://github.com/hacs/integration
-
-[releases_shield]: https://img.shields.io/github/release/igor-panteleev/lovelace-qr-code-card.svg?style=for-the-badge
-[latest_release]: https://github.com/igor-panteleev/lovelace-qr-code-card/releases/latest
-
 # Lovelace QRCode Generator card
 This card provides a possibility to generate QRCode in Home Assistant interface.
 
@@ -19,88 +13,46 @@ This card provides a possibility to generate QRCode in Home Assistant interface.
 
 ## Configuration
 
-<table>
-    <tr>
-        <th>Key</th>
-        <th>Type</th>
-        <th>Required</th>
-        <th>Default</th>
-        <th>Description</th>
-    </tr>
-    <tr>
-        <td colspan="5" style="text-align: center">
-            General options
-        </td>
-    </tr>
-    <tr>
-        <td><code>title</code></td>
-        <td>string</td>
-        <td>no</td>
-        <td>empty</td>
-        <td>Title for the card</td>
-    </tr>
-    <tr>
-        <td><code>source</code></td>
-        <td>string</td>
-        <td>yes</td>
-        <td><i>text</i></td>
-        <td>Card source type. Options: <code>text</code>, <code>entity</code>, <code>wifi</code></td>
-    </tr>
-    <tr>
-        <td colspan="5" style="text-align: center">
-            Text mode options
-        </td>
-    </tr>
-    <tr>
-        <td><code>text</code></td>
-        <td>string</td>
-        <td>yes</td>
-        <td><i>QRCode example text</i></td>
-        <td>Text that will be used for QRCode generation</td>
-    </tr>
-    <tr>
-        <td colspan="5" style="text-align: center">
-            Entity mode options
-        </td>
-    </tr>
-    <tr>
-        <td><code>entity</code></td>
-        <td>string</td>
-        <td>yes</td>
-        <td>empty</td>
-        <td>Entity that will be used for QRCode generation</td>
-    </tr>
-    <tr>
-        <td colspan="5" style="text-align: center">
-            Wi-Fi mode options
-        </td>
-    </tr>
-    <tr>
-        <td><code>auth_type</code></td>
-        <td>string</td>
-        <td>yes</td>
-        <td>empty</td>
-        <td>Wi-Fi network authentication type. Options: <code>WEP</code>, <code>WPA</code>, <code>nopass</code></td>
-    </tr>
-    <tr>
-        <td><code>ssid</code></td>
-        <td>string</td>
-        <td>yes</td>
-        <td>empty</td>
-        <td>Wi-Fi network ssid</td>
-    </tr>
-    <tr>
-        <td><code>password</code></td>
-        <td>string</td>
-        <td>yes (except <code>nopass</code> authentication)</td>
-        <td>empty</td>
-        <td>Wi-Fi network password</td>
-    </tr>
-    <tr>
-        <td><code>is_hidden</code></td>
-        <td>boolean</td>
-        <td>no</td>
-        <td>empty</td>
-        <td>Is Wi-Fi network is hidden</td>
-    </tr>
-</table>
+### Main config
+
+| Key                   | Type                                     | Required        | Default             | Description                                                             |
+|-----------------------|------------------------------------------|-----------------|---------------------|-------------------------------------------------------------------------|
+| *Generic options*     |
+| `title`               | string                                   | no              | empty               | Title for the card                                                      |
+| `source`              | string                                   | yes             | `text`              | Card source type.<br/>Options: `text,` `entity`, `wifi`                 |
+| *Text mode options*   |
+| `text`                | string                                   | yes             | QRCode example text | Text that will be used for QRCode generation                            |
+| *Entity mode options* |
+| `entity`	             | string	                                | yes	          | empty	            | Entity that will be used for QRCode generation                          |
+| *Wi-Fi mode options*  |
+| `auth_type`           | string	                                | yes	          | empty               | Wi-Fi network authentication type.<br/>Options: `WEP`, `WPA`, `nopass`  |
+| `ssid`                | string \| [EntityConfig](#entity-config) | yes             | empty               | Wi-Fi network ssid                                                      |
+| `password`            | string \| [EntityConfig](#entity-config) | yes<sup>1</sup> | empty               | Wi-Fi network password                                                  |
+| `is_hidden`           | boolean                                  | no              | empty               | Is Wi-Fi network is hidden                                              |
+
+<sup>1</sup>Required for `WEP` and `WPA` authentication
+
+### Entity Config
+
+| Key         | Type   | Required | Description                                                              |
+|-------------|--------|----------|--------------------------------------------------------------------------|
+| `entity`    | string | yes      | Entity to get state from                                                 |
+| `attribute` | string | no       | Enables usage of a configured attribute instead of state of given entity |
+
+
+### Example WiFi config
+```yaml
+type: custom:qr-code-card
+source: wifi
+title: My Awesom WiFi
+auth_type: WPA
+ssid: my_awesom_wifi
+password:
+  entity: input_text.my_super_secure_password
+```
+
+[hacs_shield]: https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge
+[hacs]: https://github.com/hacs/integration
+
+[releases_shield]: https://img.shields.io/github/release/igor-panteleev/lovelace-qr-code-card.svg?style=for-the-badge
+[latest_release]: https://github.com/igor-panteleev/lovelace-qr-code-card/releases/latest

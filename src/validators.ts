@@ -8,7 +8,7 @@ import {
 } from "./types/types";
 import { localize } from "./localize/localize";
 import { SourceType } from "./models/source-type";
-import { AuthenticationType, is_password_protected } from "./models/authentication-type";
+import { AuthenticationType, isPasswordProtected } from "./models/authentication-type";
 
 
 abstract class Validator<T> {
@@ -25,6 +25,18 @@ abstract class Validator<T> {
 
     protected abstract _validate(): string[]
 
+}
+
+class DebugModeValidator extends Validator<QRCodeCardConfig> {
+    protected _validate(): string[] {
+        const errors: string[] = [];
+
+        if (this.config.debug !== undefined && typeof this.config.debug !== "boolean") {
+            errors.push("validation.debug.invalid");
+        }
+
+        return errors;
+    }
 }
 
 class SourceValidator extends Validator<QRCodeCardConfig> {
@@ -71,11 +83,17 @@ class WiFiValidator extends Validator<WiFiSourceConfig> {
         // Validate ssid
         if (!this.config.ssid) {
             errors.push("validation.ssid.missing");
+        } else if (typeof this.config.ssid !== "string" && !this.config.ssid.hasOwnProperty("entity")) {
+            errors.push("validation.ssid.entity.missing")
         }
 
         // Validate password
-        if (is_password_protected(this.config.auth_type) && !this.config.password) {
-            errors.push("validation.password.missing");
+        if (isPasswordProtected(this.config.auth_type)) {
+            if (!this.config.password) {
+                errors.push("validation.password.missing");
+            } else if (typeof this.config.password !== "string" && !this.config.password.hasOwnProperty("entity")) {
+                errors.push("validation.password.entity.missing")
+            }
         }
 
         return errors;
@@ -102,6 +120,7 @@ export function validateConfig(config: QRCodeCardConfig): string[] {
     const errors: TranslatableString[] = [];
 
     new SourceValidator(config).validate().forEach(e => errors.push(e));
+    new DebugModeValidator(config).validate().forEach(e => errors.push(e));
 
     if (errors.length == 0) {
         const validatorCls = validatorMap.get(config.source);

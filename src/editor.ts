@@ -12,7 +12,7 @@ import {
 } from "./types/types";
 import { localizeWithHass } from "./localize/localize";
 import { SourceType } from "./models/source-type";
-import { AuthenticationType, is_password_protected } from "./models/authentication-type";
+import { AuthenticationType, isPasswordProtected } from "./models/authentication-type";
 import { EDITOR_CUSTOM_ELEMENT_NAME } from "./const";
 
 
@@ -54,22 +54,37 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
 
     get _ssid(): string {
         const config = this._config as WiFiSourceConfig | undefined;
-        return config?.ssid || "";
+        if (typeof config?.ssid === "string") {
+            return config?.ssid || "";
+        }
+        return ""
     }
 
     get _password(): string {
         const config = this._config as WiFiSourceConfig | undefined;
-        return config?.password || "";
+        if (typeof config?.password === "string") {
+            return config?.password || "";
+        }
+        return "";
     }
 
     get _is_hidden(): boolean {
         const config = this._config as WiFiSourceConfig | undefined;
         return config?.is_hidden || false;
     }
+
+    get _is_debug(): boolean {
+        const config = this._config as QRCodeCardConfig | undefined;
+        return config?.debug || false;
+    }
     
     get _entity(): string {
         const config = this._config as EntitySourceConfig | undefined;
         return config?.entity || ""
+    }
+
+    private _isDisabled(): boolean {
+        return this._config?.source === SourceType.WIFI && (typeof this._config?.ssid !== "string" || typeof this._config?.password !== "string");
     }
 
     private _localize(ts: TranslatableString): string {
@@ -79,6 +94,13 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
     protected render(): TemplateResult | void {
         if (!this.hass) {
             return html``;
+        }
+
+        if (this._isDisabled()) {
+            return html`
+                <div class="card-config">
+                    <div class="error">${this._localize("editor.yaml_mode")}</div>
+                </div>`;
         }
 
         const entities = Object.keys(this.hass.states);
@@ -139,7 +161,7 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
                         .configValue=${"ssid"}
                         @input=${this._valueChanged}></ha-textfield>
                 </div>
-                ${is_password_protected(this._auth_type) ? html`
+                ${isPasswordProtected(this._auth_type) ? html`
                 <div class="values">
                     <ha-textfield
                         .type=${this._unmaskedPassword ? "text" : "password"}
@@ -183,6 +205,15 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
                         })}
                     </ha-select>
                 </div>` : ""}
+                
+                <div class="values">
+                    <ha-formfield .label=${this._localize("editor.label.is_debug")}>
+                        <ha-switch
+                            .checked=${this._is_debug}
+                            .configValue=${"debug"}
+                            @change=${this._valueChanged}></ha-switch>
+                    </ha-formfield>
+                </div>
             </div>
         `;
     }
@@ -249,6 +280,10 @@ export class QRCodeCardEditor extends LitElement implements LovelaceCardEditor {
               --mdc-icon-size: 20px;
               color: var(--secondary-text-color);
               direction: var(--direction);
+            }
+            
+            .error {
+                color: var(--error-color);
             }
         `;
     }
